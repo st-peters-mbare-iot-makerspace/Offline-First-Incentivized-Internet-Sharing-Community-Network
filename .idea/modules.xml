@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hype/hype.iml" filepath="$PROJECT_DIR$/hype/hype.iml" />
+      <module fileurl="file://$PROJECT_DIR$/isoc-zw-hype-client.iml" filepath="$PROJECT_DIR$/isoc-zw-hype-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mockito-all-1.10.19/mockito-all-1.10.19.iml" filepath="$PROJECT_DIR$/mockito-all-1.10.19/mockito-all-1.10.19.iml" />
+    </modules>
+  </component>
+</project>
