@@ -369,11 +369,19 @@ public class SubscriptionsActivity extends AppCompatActivity {
                 }
             };
 
-            AlertDialogUtils.showSingleInputDialog(SubscriptionsActivity.this,
-                    "Publish",
-                    "Insert message to publish in the service: " + serviceName,
-                    "message",
-                    publishMsgInput);
+            if (serviceName.startsWith("emkambo")) {
+                AlertDialogUtils.showPasswordAndMessageDialog(SubscriptionsActivity.this,
+                        "Publish",
+                        "Restricted service. Insert password and message to publish in the service: " + serviceName,
+                        "message",
+                        publishMsgInput);
+            } else {
+                AlertDialogUtils.showSingleInputDialog(SubscriptionsActivity.this,
+                        "Publish",
+                        "Insert message to publish in the service: " + serviceName,
+                        "message",
+                        publishMsgInput);
+            }
         }
     }
 

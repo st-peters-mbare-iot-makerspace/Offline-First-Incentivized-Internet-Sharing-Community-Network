@@ -8,11 +8,15 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="logo"
         android:paddingTop="25dp"
-        android:contentDescription="TODO" android:contentDescription="TODO" android:paddingBottom="10dp"
+        android:paddingBottom="15dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/logo" />
+        android:src="@drawable/emkambo" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -137,7 +141,8 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="15dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="invisible">
 
         <Button
             android:id="@+id/activity_main_check_managed_services_button"

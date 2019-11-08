@@ -9,11 +9,11 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        android:contentDescription="logo"
         android:paddingTop="25dp"
-        android:contentDescription="TODO" android:contentDescription="TODO" android:paddingBottom="10dp"
+        android:paddingBottom="10dp"
         android:scaleType="fitCenter"
         android:src="@drawable/logo" />
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -55,13 +55,36 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/footer_text"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="2"
-        android:gravity="bottom|center_horizontal"
-        android:paddingBottom="18dp"
-        android:text="⚡ Powered by HypeLabs" />
+        android:layout_marginBottom="15dp"
+        android:gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/footer_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            android:text="Powered by HypeLabs"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/footer_text_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            android:text="Hype Open Protocol"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:contentDescription="hype_logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/hype_logo" />
+    </LinearLayout>
 
 </android.widget.LinearLayout>

@@ -5,29 +5,48 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.google.api.services.customsearch.model.Result;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+
 public class IncentivizedInternetActivity extends AppCompatActivity {
+    private static final String directoryPrefix = "webpages";
+    public static final String URL_KEY = "url";
+    public static final String TITLE_KEY = "title";
+    private static final String htmlFileSuffix = ".html";
+    public static final String MEDIA_TYPE_TEXT_HTML = "text/html";
+    public static final String BASE_URL = "http://192.168.100.5:8100/";
+
     HypeServerApi hypeServerApi;
     private Button btnRequestPage;
     private Button btnViewCached;
+    private Button btnViewBalance;
 
     private static IncentivizedInternetActivity instance; // Way of accessing the application context from other classes
 
@@ -44,12 +63,12 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_incentivized_internet);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.100.3:8100/")
+        Retrofit retrofitGson = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
-
-        hypeServerApi = retrofit.create(HypeServerApi.class);
+        hypeServerApi = retrofitGson.create(HypeServerApi.class);
 
         this.setTitle("Internet");
         initButtonsFromResourceIDs();
@@ -59,11 +78,13 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
     private void setButtonListeners() {
         setListenerRequestPageButton();
         setListenerViewCachedButton();
+        setListenerViewBalanceButton();
     }
 
     private void initButtonsFromResourceIDs() {
         btnRequestPage = findViewById(R.id.btn_request_webpage);
         btnViewCached = findViewById(R.id.btn_view_cached);
+        btnViewBalance = findViewById(R.id.btn_view_balance);
     }
 
     private void setListenerRequestPageButton() {
@@ -79,28 +100,139 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
         btnViewCached.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                displayCachedWebPageList(
-                        getCachedWebpagesAdapter());
+                getCachedWebpagesAdapter();
             }
         });
     }
 
-    public ArrayAdapter<WebPage> getCachedWebpagesAdapter() {
-        final ArrayList<WebPage> cachedWebPagesList = new ArrayList<>();
-        WebPage webPage = new WebPage("asdasd", "ddfa");
-        return new ArrayAdapter<WebPage>(this, R.layout.item_message, R.id.item_message_msg, cachedWebPagesList);
+    private void setListenerViewBalanceButton() {
+        btnViewBalance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                showBalance();
+            }
+        });
     }
 
-    public ArrayAdapter<WebPage> getWebpagesByKeywordAdapter(String keyword) {
-        ProgressDialog progressDialog = ProgressDialog.show(IncentivizedInternetActivity.this, "Searching", "Please wait...");
-        List<Result> results = hypeServerApi.searchByKeyword(keyword);
-        List<WebPage> webPageResults = new ArrayList<>();
-        for (Result result : results) {
-            WebPage webPage = new WebPage(result.getTitle(), result.getFormattedUrl());
-            webPageResults.add(webPage);
-        }
-        progressDialog.dismiss();
-        return new ArrayAdapter<>(this, R.layout.item_message, R.id.item_message_msg, webPageResults);
+    private void showBalance() {
+        final ProgressDialog progressDialog = ProgressDialog.show(IncentivizedInternetActivity.this, "Getting cached content", "Please wait...");
+        Call<HypeBalance> call = hypeServerApi.getBalance(MainActivity.getHypeUserId());
+
+        call.enqueue(new Callback<HypeBalance>() {
+            @Override
+            public void onResponse(Call<HypeBalance> call, Response<HypeBalance> response) {
+                progressDialog.dismiss();
+                if (response.isSuccessful()) {
+                    HypeBalance balance = response.body();// have your all data
+                    AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+                    alertDialog.setTitle("HypeBalance");
+                    if (balance == null) {
+                        throw new RuntimeException("Balance returned is null!");
+                    }
+                    alertDialog.setMessage("Your current token balance is " + balance.getBalance() +
+                            "\nStay connected to the network and gather more tokens.");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                } else {
+                    Log.d("Response fail: ", String.valueOf(response.errorBody()));
+                    Toast.makeText(getApplicationContext(), "An error occurred while trying to process your request", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HypeBalance> call, Throwable t) {
+                progressDialog.dismiss();
+                Log.e("Response fail: ", t.getMessage());
+                Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show(); // ALL NETWORK ERROR HERE
+            }
+        });
+    }
+
+    public void getCachedWebpagesAdapter() {
+        final ProgressDialog progressDialog = ProgressDialog.show(IncentivizedInternetActivity.this, "Getting cached content", "Please wait...");
+        Call<Map<String, WebPage>> call = hypeServerApi.getCachedContent();
+
+        call.enqueue(new Callback<Map<String, WebPage>>() {
+            @Override
+            public void onResponse(Call<Map<String, WebPage>> call, Response<Map<String, WebPage>> response) {
+                progressDialog.dismiss();
+                if (response.isSuccessful()) {
+                    Map<String, WebPage> results = response.body();// have your all data
+                    assert results != null;
+                    List<Map<String, String>> data = new ArrayList<Map<String, String>>();
+                    for (Map.Entry<String, WebPage> entry : results.entrySet()) {
+                        Map<String, String> datum = new HashMap<String, String>();
+                        datum.put("title", entry.getValue().getTitle());
+                        datum.put("url", entry.getValue().getUrl());
+                        data.add(datum);
+                    }
+                    SimpleAdapter adapter = new SimpleAdapter(getContext(), data,
+                            android.R.layout.simple_list_item_2,
+                            new String[]{"title", URL_KEY},
+                            new int[]{android.R.id.text1,
+                                    android.R.id.text2});
+
+                    displayCachedWebPageResultList(adapter);
+
+                } else {
+                    Log.d("Response fail: ", String.valueOf(response.errorBody()));
+                    Toast.makeText(getApplicationContext(), "An error occurred while trying to process your request", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, WebPage>> call, Throwable t) {
+                progressDialog.dismiss();
+                Log.e("Response fail: ", t.getMessage());
+                Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show(); // ALL NETWORK ERROR HERE
+            }
+        });
+    }
+
+    public void getWebpagesByKeywordAdapter(String keyword) {
+        final ProgressDialog progressDialog = ProgressDialog.show(IncentivizedInternetActivity.this, "Searching", "Please wait...");
+        Call<List<Result>> call = hypeServerApi.searchByKeyword(keyword);
+
+        call.enqueue(new Callback<List<Result>>() {
+            @Override
+            public void onResponse(Call<List<Result>> call, Response<List<Result>> response) {
+                progressDialog.dismiss();
+                if (response.isSuccessful()) {
+                    List<Result> results = response.body();// have your all data
+                    assert results != null;
+                    List<Map<String, String>> data = new ArrayList<Map<String, String>>();
+                    for (Result result : results) {
+                        Map<String, String> datum = new HashMap<String, String>();
+                        datum.put("title", result.getTitle());
+                        datum.put("url", result.getFormattedUrl());
+                        data.add(datum);
+                    }
+                    SimpleAdapter adapter = new SimpleAdapter(getContext(), data,
+                            android.R.layout.simple_list_item_2,
+                            new String[]{"title", URL_KEY},
+                            new int[]{android.R.id.text1,
+                                    android.R.id.text2});
+
+                    displayWebPageResultList(adapter);
+
+                } else {
+                    Log.d("Response fail: ", String.valueOf(response.errorBody()));
+                    Toast.makeText(getApplicationContext(), "An error occurred while trying to process your request", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Result>> call, Throwable t) {
+                progressDialog.dismiss();
+                Log.e("Response fail: ", t.getMessage());
+                Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show(); // ALL NETWORK ERROR HERE
+            }
+        });
     }
 
     private void displayKeywordPrompt() {
@@ -123,8 +255,7 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
         builder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String keyword = editText.getText().toString();
-                ArrayAdapter<WebPage> cachedWebpagesAdapter = getWebpagesByKeywordAdapter(keyword);
-                displayWebPageResultList(cachedWebpagesAdapter);
+                getWebpagesByKeywordAdapter(keyword);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -164,14 +295,16 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String listItem = (String) listView.getItemAtPosition(position);
+                Map<String, String> listItem = (Map<String, String>) listView.getItemAtPosition(position);
+                viewWebPage(listItem.get(TITLE_KEY), listItem.get(URL_KEY));
                 //serviceAction.action(listItem);
                 dialog.dismiss();
             }
         });
     }
 
-    private void displayCachedWebPageList(ListAdapter adapter) {
+
+    private void displayCachedWebPageResultList(ListAdapter adapter) {
         final ListView listView = new ListView(IncentivizedInternetActivity.this);
         listView.setAdapter(adapter);
 
@@ -180,28 +313,48 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
         layout.addView(listView);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(IncentivizedInternetActivity.this);
-        builder.setTitle("Cached web pages");
+        builder.setTitle("Cached content");
         builder.setCancelable(true);
         builder.setView(layout);
         builder.setMessage("Select a cached web page to view");
-        builder.setNegativeButton("Cancel",
+        builder.setNegativeButton("Close",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 });
-
         final Dialog dialog = builder.create();
         dialog.show();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String listItem = (String) listView.getItemAtPosition(position);
+                Map<String, String> listItem = (Map<String, String>) listView.getItemAtPosition(position);
+                viewCachedWebPage(listItem.get(URL_KEY));
                 //serviceAction.action(listItem);
                 dialog.dismiss();
             }
         });
+    }
+
+    private String constructFilename(String htmlFileName) {
+        return htmlFileName + htmlFileSuffix;
+    }
+
+    private String constructAbsolutePath(String htmlFileName) {
+        return directoryPrefix + htmlFileName + htmlFileSuffix;
+    }
+
+    private void viewCachedWebPage(String key) {
+        String offlineUrl = BASE_URL + "hype/webpage/cached" + "?key=" + key + "&userId=" + MainActivity.getHypeUserId();
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(offlineUrl));
+        startActivity(browserIntent);
+    }
+
+    private void viewWebPage(String title, String url) {
+        String offlineUrl = BASE_URL + "hype/webpage" + "?title=" + title + "&url=" + url + "&userId=" + MainActivity.getHypeUserId();
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(offlineUrl));
+        startActivity(browserIntent);
     }
 
 }

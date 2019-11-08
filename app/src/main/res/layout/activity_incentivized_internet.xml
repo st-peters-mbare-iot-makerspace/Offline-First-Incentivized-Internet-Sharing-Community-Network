@@ -8,12 +8,12 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="300dp"
+        android:contentDescription="logo"
         android:paddingTop="25dp"
-        android:contentDescription="TODO" android:contentDescription="TODO" android:paddingBottom="10dp"
+        android:paddingBottom="10dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/logo" />
-
+        android:src="@drawable/am_mbare" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,6 +49,26 @@
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
             android:text="View Cached pages"
+            android:textColor="#ffffff"
+            tools:layout_editor_absoluteX="224dp"
+            tools:layout_editor_absoluteY="124dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="15dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_view_balance"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            android:text="View Balance"
             android:textColor="#ffffff"
             tools:layout_editor_absoluteX="224dp"
             tools:layout_editor_absoluteY="124dp" />

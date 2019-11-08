@@ -15,6 +15,6 @@ public class HpsConstants
     static public final String NOTIFICATIONS_TITLE = "Mbare";
     static public final String LOG_PREFIX = " :: HpsApplication :: ";
     static public final ArrayList<String> STANDARD_HYPE_SERVICES = new ArrayList<>(Arrays.asList(
-            "hype-jobs", "hype-sports", "hype-news", "hype-weather", "hype-music", "hype-movies"));
+            "emKambo-Madora", "emKambo-Tomatoes", "emKambo-Potatoes", "emKambo-Onions", "emKambo-Watermelons"));
     static public final int REQUEST_ACCESS_COARSE_LOCATION_ID = 0;
 }
