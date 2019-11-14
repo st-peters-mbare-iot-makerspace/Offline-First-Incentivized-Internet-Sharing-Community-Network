@@ -27,12 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static zw.org.isoc.hype.MainActivity.getHypeUserId;
 
 
 public class IncentivizedInternetActivity extends AppCompatActivity {
@@ -41,7 +44,7 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
     public static final String TITLE_KEY = "title";
     private static final String htmlFileSuffix = ".html";
     public static final String MEDIA_TYPE_TEXT_HTML = "text/html";
-    public static final String BASE_URL = "http://192.168.100.5:8100/";
+    public static final String BASE_URL = "http://192.168.100.17:8100/";
 
     HypeServerApi hypeServerApi;
     private Button btnRequestPage;
@@ -73,6 +76,39 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
         this.setTitle("Internet");
         initButtonsFromResourceIDs();
         setButtonListeners();
+
+        registerForInternet();
+
+    }
+
+    private void registerForInternet() {
+        final ProgressDialog progressDialog = ProgressDialog.show(this, "Registering", "Please wait...");
+        HypeUser hypeUser = new HypeUser();
+        hypeUser.setId(getHypeUserId());
+        Call<ResponseBody> call = hypeServerApi.register(hypeUser);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                progressDialog.dismiss();
+                if (response.isSuccessful()) {
+                    Toast.makeText(getApplicationContext(), "Successfully registered!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Internet gateway not available", Toast.LENGTH_LONG).show();
+                    final Intent intent = new Intent(instance, MainActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), "Internet gateway not available", Toast.LENGTH_LONG).show();
+                final Intent intent = new Intent(instance, MainActivity.class);
+                startActivity(intent);
+                Log.e("Response fail: ", t.getMessage());
+            }
+        });
     }
 
     private void setButtonListeners() {
@@ -116,7 +152,7 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
 
     private void showBalance() {
         final ProgressDialog progressDialog = ProgressDialog.show(IncentivizedInternetActivity.this, "Getting cached content", "Please wait...");
-        Call<HypeBalance> call = hypeServerApi.getBalance(MainActivity.getHypeUserId());
+        Call<HypeBalance> call = hypeServerApi.getBalance(getHypeUserId());
 
         call.enqueue(new Callback<HypeBalance>() {
             @Override
@@ -346,13 +382,13 @@ public class IncentivizedInternetActivity extends AppCompatActivity {
     }
 
     private void viewCachedWebPage(String key) {
-        String offlineUrl = BASE_URL + "hype/webpage/cached" + "?key=" + key + "&userId=" + MainActivity.getHypeUserId();
+        String offlineUrl = BASE_URL + "hype/webpage/cached" + "?key=" + key + "&userId=" + getHypeUserId();
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(offlineUrl));
         startActivity(browserIntent);
     }
 
     private void viewWebPage(String title, String url) {
-        String offlineUrl = BASE_URL + "hype/webpage" + "?title=" + title + "&url=" + url + "&userId=" + MainActivity.getHypeUserId();
+        String offlineUrl = BASE_URL + "hype/webpage" + "?title=" + title + "&url=" + url + "&userId=" + getHypeUserId();
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(offlineUrl));
         startActivity(browserIntent);
     }
