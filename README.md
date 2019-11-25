@@ -1,4 +1,4 @@
-## Offline-First, Incentivized Internet Sharing
+## Offline-First, Incentivized Internet Sharing Community Network
 
 The project consists of an Android mobile application and Content Distribution Network (CDN) intended for offline-first, incentivized internet sharing, and protoyped within the Mbare community as part of the Internet Society 2019 Chapterthon Project. The goal of the system is to ensure residents will remain locally connected, initially and to have access to essential content made available through "offline-first" services like Kolibri (formerly Khan Academy Lite) and cached content. 
 
