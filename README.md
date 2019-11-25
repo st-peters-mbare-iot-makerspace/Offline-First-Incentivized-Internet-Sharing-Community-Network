@@ -36,8 +36,8 @@ kubectl label node $MASTER kubernetes.io/role=master node-role.kubernetes.io/mas
 
 ## Kubernetes Nodes Setup
 K3SMASTER="IAmMbare"
-K3SMASTERIPADDRESS="192.168.1.7"    #Static IP Address
-NODE_TOKEN=""       #Replace with generated token
+K3SMASTERIPADDRESS="192.168.1.7"    # Static IP Address
+NODE_TOKEN=""       # Replace with generated token
 NODE=$(hostname)
 
 echo "$K3SMASTERIPADDRESS       $K3SMASTER" | sudo tee -a /etc/hosts
