@@ -58,7 +58,6 @@ This project is MIT-licensed.
     
 ## Partners
   
-This project is in partnership with:
 - HypeLabs
 - Internet Society Zimbabwe Chapter
 - IAmMbare Youth Development Centre
