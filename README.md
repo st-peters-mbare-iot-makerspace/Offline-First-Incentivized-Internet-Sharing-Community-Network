@@ -56,10 +56,10 @@ kubectl label node $NODE kubernetes.io/role=agent node-role.kubernetes.io/agent
   
 This project is MIT-licensed.  
     
-## Sponsors
+## Partners
   
 This project is in partnership with:
 - HypeLabs
--  Internet Society Zimbabwe Chapter
--  IAmMbare Youth Development Centre
--  St Peters IoT Makerspace
+- Internet Society Zimbabwe Chapter
+- IAmMbare Youth Development Centre
+- St Peters IoT Makerspace
