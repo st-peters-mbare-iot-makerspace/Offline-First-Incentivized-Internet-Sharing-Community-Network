@@ -22,9 +22,13 @@ Please note that the app can **ONLY be run on physical hardware devices**. Runni
 ## Kubernetes Master Setup  
 
 MASTER=$(hostname)
+
 curl -sfL https://get.k3s.io -o install.sh
+
 chmod +x install.sh
+
 ./install.sh server --kubelet-arg="address=0.0.0.0"
+
 systemctl status k3s
 
 sudo apt update
