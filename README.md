@@ -1,79 +1,27 @@
-## Offline-First, Incentivized Internet Sharing Community Network
+# 🌍 Offline-First, Incentivized Internet Sharing Community Network
 
-The project consists of an Android mobile application and Content Distribution Network (CDN) intended for offline-first, incentivized internet sharing, and protoyped within the Mbare community as part of the Internet Society 2019 Chapterthon Project. The goal of the system is to ensure residents will remain locally connected, initially and to have access to essential content made available through "offline-first" services like Kolibri (formerly Khan Academy Lite) and cached content. 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## Project  
- 
-This project utilises Blockchain-based Hype Open Protocol (HOP), which is an SDK for cross-platform peer-to-peer communication with mesh networking. HOP works even without Internet access, connecting devices via other communication channels such as Bluetooth, Wi-Fi direct, and Infrastructural Wi-Fi.    
+A community-driven project prototyped in **Mbare, Zimbabwe** during the [Internet Society 2019 Chapterthon](https://www.internetsociety.org).  
+The system enables **offline-first connectivity** and **incentivized internet sharing**, ensuring residents stay connected even when the broader internet is unavailable.
 
-The Community Network, developed using HOP, enables IAmMbare, a youth development non-governmental organisation, to share its excess fixed-plan Internet with locals whilst getting incentivized through payment of HOP tokens. iMbare’s offline-first CN is implemented as a Content Distribution Network, created from a cluster of Raspberry Pis orchestrated by Kubernetes.  
-  
-## Mobile Application Setup  
- 
- The following are the necessary steps to configure it:  
-  
- 1. Download the source code
- 2. Build the APK
- 3. Run it on your android device!
+---
 
-  
-Please note that the app can **ONLY be run on physical hardware devices**. Running on *emulators will not work* due to APIs related to certain features being unsupported.  
+## ✨ Project Overview
 
-## Kubernetes Master Setup  
+This project combines:
 
-MASTER=$(hostname)
+- **Android Mobile Application** – an offline-first app for access to cached educational and community content (e.g., [Kolibri](https://learningequality.org/kolibri/)).  
+- **Community Network CDN** – a cluster of Raspberry Pis orchestrated with Kubernetes, serving as a local content distribution backbone.  
+- **Blockchain Incentives** – built on the **Hype Open Protocol (HOP)** SDK, enabling tokenized peer-to-peer communication over Wi-Fi Direct, Bluetooth, and local Wi-Fi.
 
-curl -sfL https://get.k3s.io -o install.sh
+👉 The model empowers community groups (like **IAmMbare**) to **share excess fixed-plan internet** with neighbors while earning **HOP tokens** for their contributions.
 
-chmod +x install.sh
+---
 
-./install.sh server --kubelet-arg="address=0.0.0.0"
+## 🛠️ Quick Start
 
-systemctl status k3s
-
-sudo apt update
-
-sudo apt install jq vim git -y
-
-kubectl taint nodes $MASTER node-role.kubernetes.io/master=true:NoSchedule
-
-kubectl label node $MASTER kubernetes.io/role=master node-role.kubernetes.io/master
-
-
-## Kubernetes Nodes Setup
-
-K3SMASTER="IAmMbare"
-
-K3SMASTERIPADDRESS="192.168.1.7"    # Static IP Address
-
-NODE_TOKEN=""       # Replace with generated token
-
-NODE=$(hostname)
-
-echo "$K3SMASTERIPADDRESS       $K3SMASTER" | sudo tee -a /etc/hosts
-
-curl -sfL https://get.k3s.io -o install.sh
-
-chmod +x install.sh
-
-./install.sh agent --server https://$K3SMASTER:6443 --kubelet-arg="address=0.0.0.0" --token $NODE_TOKEN
-
-systemctl status k3s-agent
-
-sudo apt update
-
-sudo apt install jq vim -y
-
-kubectl label node $NODE kubernetes.io/role=agent node-role.kubernetes.io/agent
-
-
-## License  
-  
-This project is MIT-licensed.  
-    
-## Partners
-  
-- HypeLabs
-- Internet Society Zimbabwe Chapter
-- IAmMbare Youth Development Centre
-- St Peters IoT Makerspace
+### Mobile Application Setup
+1. Clone this repository  
+   ```bash
+   git clone https://github.com/<your-org>/<repo>.git
